@@ -27,5 +27,5 @@ To get a development build, run `npm run dev`
 
 ### Dependencies
 ```json
-
+"sharp": "^0.32.6"
 ```
