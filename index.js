@@ -57,8 +57,7 @@ async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
   try {
     const fileNames = await getFileNames();
     const amount = fileNames.length;
-
-    let start = performance.now();
+    console.log(`Processing ${amount} files...`);
 
     for (const fileName of fileNames) {
       let fileSize = undefined;
@@ -146,11 +145,6 @@ async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
         console.error("Error reading file:", err);
       }
     }
-
-    let end = performance.now();
-    console.log(`[TIME] ${(end - start).toFixed(2)} ms`);
-    console.log(`[AMOUNT] ${amount}`);
-    console.log(`[AVG] ${((end - start) / amount).toFixed(2)} ms`);
   } catch (err) {
     console.error("Error reading directory:", err);
   }
