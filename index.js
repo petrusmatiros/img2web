@@ -83,7 +83,7 @@ async function run({ fileInfo = false, byteSize = BYTE_SIZE.MB, quality = 75 }) 
           quality: quality,
           width: 1920,
           height: 1080,
-          fit: "contain",
+          fit: "inside",
           withoutEnlargement: true,
           fastShrinkOnLoad: true,
         };
