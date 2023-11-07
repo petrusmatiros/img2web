@@ -47,7 +47,7 @@ function getFileSize(fileSize, byteSize) {
 
 const args = {
   fileInfo: true,
-  byteSize: BYTE_SIZE.KB,
+  byteSize: BYTE_SIZE.MB,
   quality: 75,
 };
 
@@ -90,6 +90,7 @@ async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
         height: 1080,
         fit: "inside",
         withoutEnlargement: true,
+        smartSubsample: true,
         effort: 6,
         fastShrinkOnLoad: true,
       };
