@@ -46,20 +46,23 @@ function getFileSize(fileSize, byteSize) {
 }
 
 const args = {
-  fileInfo: false,
+  fileInfo: true,
   byteSize: BYTE_SIZE.KB,
   quality: 75,
 };
 
 run(args);
 
-async function run({ fileInfo = false, byteSize = BYTE_SIZE.MB, quality = 75 }) {
+async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
   try {
     const fileNames = await getFileNames();
+    const amount = fileNames.length;
+
+    let start = performance.now();
 
     for (const fileName of fileNames) {
       let fileSize = undefined;
-      if (!fileInfo) {
+      if (fileInfo) {
         try {
           fileSize = await getFilesizeInBytes(`${folderPathInput}/${fileName}`);
         } catch (err) {
@@ -67,46 +70,51 @@ async function run({ fileInfo = false, byteSize = BYTE_SIZE.MB, quality = 75 }) 
         }
       }
 
-      try {
-        console.log("--------------------------------------------------");
-        console.log(`Converting file: ${fileName}`);
+      console.log("--------------------------------------------------");
+      console.log(`Converting file: ${fileName}`);
+
+      if (fileInfo) {
         console.log(`[INPUT] file size: ${getFileSize(fileSize, byteSize)}`);
+      }
 
-        const inputImagePath = `${folderPathInput}/${fileName}`;
-        const fileFormatOutput = ".webp";
-        const fileNameOutput = fileName.split(".")[0];
+      const inputImagePath = `${folderPathInput}/${fileName}`;
+      const fileFormatOutput = ".webp";
+      const fileNameOutput = fileName.split(".")[0];
 
-        const outputImagePath = `${folderPathOutput}/${fileNameOutput}-compressed${fileFormatOutput}`;
+      const outputImagePath = `${folderPathOutput}/${fileNameOutput}-compressed${fileFormatOutput}`;
 
-        // Define the compression and resizing options
-        const options = {
-          quality: quality,
-          width: 1920,
-          height: 1080,
-          fit: "inside",
-          withoutEnlargement: true,
-          fastShrinkOnLoad: true,
-        };
+      // Define the compression and resizing options
+      // 0 - 6 (effort, higher is slower but better)
+      const options = {
+        quality: quality,
+        width: 1920,
+        height: 1080,
+        fit: "inside",
+        withoutEnlargement: true,
+        effort: 6,
+        fastShrinkOnLoad: true,
+      };
 
-        const image = sharp(inputImagePath);
+      const image = sharp(inputImagePath);
+      try {
+        const metadata = await image.metadata();
+        if (metadata.height > metadata.width) {
+          const aspectRatio = metadata.height / metadata.width;
+          options.height = Math.floor(options.width * aspectRatio);
+        } else if (metadata.width > metadata.height) {
+          const aspectRatio = metadata.width / metadata.height;
+          options.width = Math.floor(options.height * aspectRatio);
+        } else if (metadata.width === metadata.height) {
+          options.height = options.width;
+        }
+
+        const processed = image.resize(options).webp(options);
+
         try {
-          const metadata = await image.metadata();
-          if (metadata.height > metadata.width) {
-            const aspectRatio = metadata.height / metadata.width;
-            options.height = Math.floor(options.width * aspectRatio);
-          } else if (metadata.width > metadata.height) {
-            const aspectRatio = metadata.width / metadata.height;
-            options.width = Math.floor(options.height * aspectRatio);
-          } else if (metadata.width === metadata.height) {
-            options.height = options.width;
-          }
+          const info = await processed.toFile(outputImagePath);
 
-          const processed = image.resize(options).webp(options);
-
-          try {
-            const info = await processed.toFile(outputImagePath);
-
-            if (fileSize) {
+          if (fileSize && fileInfo) {
+            if (fileSize - info.size > 0) {
               console.log(
                 `[OUTPUT] file size: ${getFileSize(
                   info.size,
@@ -116,20 +124,33 @@ async function run({ fileInfo = false, byteSize = BYTE_SIZE.MB, quality = 75 }) 
                   100
                 ).toFixed(2)}%]`
               );
+            } else {
+              console.log(
+                `[OUTPUT] file size: ${getFileSize(
+                  info.size,
+                  byteSize
+                )} [+${getFileSize(fileSize - info.size, byteSize)}] [+${(
+                  ((fileSize - info.size) / fileSize) *
+                  100
+                ).toFixed(2)}%]`
+              );
             }
-            console.log(
-              `[OUTPUT] file info: [${info.format}] ${info.width}x${info.height}`
-            );
-          } catch (err) {
-            console.error("Error writing file:", err);
           }
+          console.log(
+            `[OUTPUT] file info: [${info.format}] ${info.width}x${info.height}`
+          );
         } catch (err) {
-          console.error("Error reading file:", err);
+          console.error("Error writing file:", err);
         }
       } catch (err) {
         console.error("Error reading file:", err);
       }
     }
+
+    let end = performance.now();
+    console.log(`[TIME] ${(end - start).toFixed(2)} ms`);
+    console.log(`[AMOUNT] ${amount}`);
+    console.log(`[AVG] ${((end - start) / amount).toFixed(2)} ms`);
   } catch (err) {
     console.error("Error reading directory:", err);
   }
