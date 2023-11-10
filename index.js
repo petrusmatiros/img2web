@@ -1,5 +1,6 @@
 const sharp = require("sharp");
 const fs = require("fs").promises;
+const path = require("path");
 
 const folderPathInput = "./input";
 const folderPathOutput = "./output";
@@ -24,37 +25,39 @@ async function getFilesizeInBytes(filename) {
     console.error("Error reading file:", err);
     return;
   }
-  var fileSizeInBytes = stats.size;
-  return fileSizeInBytes;
+  return stats.size;
 }
 
 const BYTE_SIZE = {
   B: 1,
   KB: 1000,
-  MB: 1000 * 1000,
-  GB: 1000 * 1000 * 1000,
+  MB: 1000000,
+  GB: 1000000000,
 };
 
+function getKeyByValue(object, value) {
+  return Object.keys(object).find((key) => object[key] === value);
+}
+
 function getFileSize(fileSize, byteSize) {
-  function getKeyByValue(object, value) {
-    return Object.keys(object).find((key) => object[key] === value);
-  }
   const key = getKeyByValue(BYTE_SIZE, byteSize);
   if (!fileSize) return "unknown";
   if (!key) return "unknown";
   return `${(fileSize / byteSize).toFixed(2)} ${key}`;
 }
 
-const args = {
-  fileInfo: true,
-  byteSize: BYTE_SIZE.MB,
-  quality: 75,
-};
-
-run(args);
+async function processFile(image, options) {
+  try {
+    const processed = image.resize(options).webp(options);
+    return processed;
+  } catch (err) {
+    console.error("Error reading file:", err);
+  }
+}
 
 async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
   try {
+    // const start = performance.now();
     const fileNames = await getFileNames();
     const amount = fileNames.length;
     console.log(`Processing ${amount} files...`);
@@ -80,8 +83,11 @@ async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
       const fileFormatOutput = ".webp";
       const fileNameOutput = fileName.split(".")[0];
 
-      const outputImagePath = `${folderPathOutput}/${fileNameOutput}-compressed${fileFormatOutput}`;
-
+      // const outputImagePath = `${folderPathOutput}/${fileNameOutput}-compressed${fileFormatOutput}`;
+      const outputImagePath = path.join(
+        folderPathOutput,
+        fileNameOutput + "-compressed" + fileFormatOutput
+      );
       // Define the compression and resizing options
       // 0 - 6 (effort, higher is slower but better)
       const options = {
@@ -96,19 +102,7 @@ async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
 
       const image = sharp(inputImagePath);
       try {
-        const metadata = await image.metadata();
-        if (metadata.height > metadata.width) {
-          const aspectRatio = metadata.height / metadata.width;
-          options.height = Math.floor(options.width * aspectRatio);
-        } else if (metadata.width > metadata.height) {
-          const aspectRatio = metadata.width / metadata.height;
-          options.width = Math.floor(options.height * aspectRatio);
-        } else if (metadata.width === metadata.height) {
-          options.height = options.width;
-        }
-
-        const processed = image.resize(options).webp(options);
-
+        const processed = await processFile(image, options);
         try {
           const info = await processed.toFile(outputImagePath);
 
@@ -142,10 +136,22 @@ async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
           console.error("Error writing file:", err);
         }
       } catch (err) {
-        console.error("Error reading file:", err);
+        console.error("Error processing file:", err);
       }
     }
+
+    // const end = performance.now();
+    // console.log(`Time elapsed: ${(end - start).toFixed(2)} ms`);
+    // console.log(`Avg time per file: ${((end - start) / amount).toFixed(2)} ms`);
   } catch (err) {
     console.error("Error reading directory:", err);
   }
 }
+
+const args = {
+  fileInfo: true,
+  byteSize: BYTE_SIZE.MB,
+  quality: 75,
+};
+
+run(args);
