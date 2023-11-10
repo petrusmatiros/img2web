@@ -12,7 +12,7 @@
 - [Development](#development)
 
 ## Website URL
--
+- TBD
 
 ## Project description
 A CLI tool for converting bulk images to compressed, resized WEBP images
