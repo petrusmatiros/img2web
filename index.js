@@ -55,7 +55,12 @@ async function processFile(image, options) {
   }
 }
 
-async function run({ fileInfo = true, performanceInfo = false, byteSize = BYTE_SIZE.MB, quality = 75 }) {
+async function run({
+  fileInfo = true,
+  performanceInfo = false,
+  byteSize = BYTE_SIZE.MB,
+  quality = 75,
+}) {
   try {
     let start, end;
     if (performanceInfo) {
@@ -87,7 +92,6 @@ async function run({ fileInfo = true, performanceInfo = false, byteSize = BYTE_S
       const fileFormatOutput = ".webp";
       const fileNameOutput = fileName.split(".")[0];
 
-      // const outputImagePath = `${folderPathOutput}/${fileNameOutput}-compressed${fileFormatOutput}`;
       const outputImagePath = path.join(
         folderPathOutput,
         fileNameOutput + "-compressed" + fileFormatOutput
@@ -146,7 +150,9 @@ async function run({ fileInfo = true, performanceInfo = false, byteSize = BYTE_S
     if (performanceInfo) {
       end = performance.now();
       console.log(`Time elapsed: ${(end - start).toFixed(2)} ms`);
-      console.log(`Avg time per file: ${((end - start) / amount).toFixed(2)} ms`);
+      console.log(
+        `Avg time per file: ${((end - start) / amount).toFixed(2)} ms`
+      );
     }
   } catch (err) {
     console.error("Error reading directory:", err);
