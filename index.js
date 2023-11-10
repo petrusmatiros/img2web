@@ -57,8 +57,9 @@ async function processFile(image, options) {
 
 async function run({ fileInfo = true, performanceInfo = false, byteSize = BYTE_SIZE.MB, quality = 75 }) {
   try {
+    let start, end;
     if (performanceInfo) {
-      const start = performance.now();
+      start = performance.now();
     }
 
     const fileNames = await getFileNames();
@@ -99,7 +100,7 @@ async function run({ fileInfo = true, performanceInfo = false, byteSize = BYTE_S
         height: 1080,
         fit: "inside",
         withoutEnlargement: true,
-        effort: 6,
+        effort: 0,
         fastShrinkOnLoad: true,
       };
 
@@ -143,7 +144,7 @@ async function run({ fileInfo = true, performanceInfo = false, byteSize = BYTE_S
       }
     }
     if (performanceInfo) {
-      const end = performance.now();
+      end = performance.now();
       console.log(`Time elapsed: ${(end - start).toFixed(2)} ms`);
       console.log(`Avg time per file: ${((end - start) / amount).toFixed(2)} ms`);
     }
@@ -154,9 +155,9 @@ async function run({ fileInfo = true, performanceInfo = false, byteSize = BYTE_S
 
 const args = {
   fileInfo: true,
-  performanceInfo: false,
+  performanceInfo: true,
   byteSize: BYTE_SIZE.MB,
-  quality: 75,
+  quality: 90,
 };
 
 run(args);
