@@ -100,7 +100,7 @@ async function run({ fileInfo = true, performanceInfo = false, byteSize = BYTE_S
         height: 1080,
         fit: "inside",
         withoutEnlargement: true,
-        effort: 0,
+        effort: 6,
         fastShrinkOnLoad: true,
       };
 
@@ -157,7 +157,7 @@ const args = {
   fileInfo: true,
   performanceInfo: true,
   byteSize: BYTE_SIZE.MB,
-  quality: 90,
+  quality: 75,
 };
 
 run(args);
