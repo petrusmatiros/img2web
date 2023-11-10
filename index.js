@@ -57,7 +57,7 @@ async function processFile(image, options) {
 
 async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
   try {
-    // const start = performance.now();
+    const start = performance.now();
     const fileNames = await getFileNames();
     const amount = fileNames.length;
     console.log(`Processing ${amount} files...`);
@@ -96,7 +96,7 @@ async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
         height: 1080,
         fit: "inside",
         withoutEnlargement: true,
-        effort: 6,
+        effort: 4,
         fastShrinkOnLoad: true,
       };
 
@@ -140,9 +140,9 @@ async function run({ fileInfo = true, byteSize = BYTE_SIZE.MB, quality = 75 }) {
       }
     }
 
-    // const end = performance.now();
-    // console.log(`Time elapsed: ${(end - start).toFixed(2)} ms`);
-    // console.log(`Avg time per file: ${((end - start) / amount).toFixed(2)} ms`);
+    const end = performance.now();
+    console.log(`Time elapsed: ${(end - start).toFixed(2)} ms`);
+    console.log(`Avg time per file: ${((end - start) / amount).toFixed(2)} ms`);
   } catch (err) {
     console.error("Error reading directory:", err);
   }
