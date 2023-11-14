@@ -8,10 +8,17 @@ const folderPathOutput = "./output";
 async function getFileNames() {
   try {
     const files = await fs.readdir(folderPathInput);
-    return files.filter(async (file) => {
-      const stats = await fs.lstat(`${folderPathInput}/${file}`);
-      return stats.isFile();
-    });
+    const fileStats = await Promise.allSettled(
+      files.map(async (file) => {
+        const stats = await fs.lstat(`${folderPathInput}/${file}`);
+        return stats.isFile();
+      })
+    );
+
+    return files.filter(
+      (file, index) =>
+        fileStats[index].status === "fulfilled" && fileStats[index].value
+    );
   } catch (err) {
     console.error("Error reading directory:", err);
     return [];
@@ -56,7 +63,7 @@ async function processFile(image, options) {
 }
 
 async function run({
-  fileInfo = true,
+  logging = true,
   performanceInfo = false,
   byteSize = BYTE_SIZE.MB,
   quality = 75,
@@ -71,9 +78,9 @@ async function run({
     const amount = fileNames.length;
     console.log(`Processing ${amount} files...`);
 
-    for (const fileName of fileNames) {
+    const fileStatsPromises = fileNames.map(async (fileName) => {
       let fileSize = undefined;
-      if (fileInfo) {
+      if (logging) {
         try {
           fileSize = await getFilesizeInBytes(`${folderPathInput}/${fileName}`);
         } catch (err) {
@@ -81,10 +88,9 @@ async function run({
         }
       }
 
-      console.log("--------------------------------------------------");
-      console.log(`Converting file: ${fileName}`);
-
-      if (fileInfo) {
+      if (logging) {
+        console.log("--------------------------------------------------");
+        console.log(`Converting file: ${fileName}`);
         console.log(`[INPUT] file size: ${getFileSize(fileSize, byteSize)}`);
       }
 
@@ -114,39 +120,44 @@ async function run({
         try {
           const info = await processed.toFile(outputImagePath);
 
-          if (fileSize && fileInfo) {
-            if (fileSize - info.size > 0) {
-              console.log(
-                `[OUTPUT] file size: ${getFileSize(
-                  info.size,
-                  byteSize
-                )} [-${getFileSize(fileSize - info.size, byteSize)}] [-${(
-                  ((fileSize - info.size) / fileSize) *
-                  100
-                ).toFixed(2)}%]`
-              );
-            } else {
-              console.log(
-                `[OUTPUT] file size: ${getFileSize(
-                  info.size,
-                  byteSize
-                )} [+${getFileSize(fileSize - info.size, byteSize)}] [+${(
-                  ((fileSize - info.size) / fileSize) *
-                  100
-                ).toFixed(2)}%]`
-              );
+          if (logging) {
+            if (fileSize) {
+              if (fileSize - info.size > 0) {
+                console.log(
+                  `[OUTPUT] file size: ${getFileSize(
+                    info.size,
+                    byteSize
+                  )} [-${getFileSize(fileSize - info.size, byteSize)}] [-${(
+                    ((fileSize - info.size) / fileSize) *
+                    100
+                  ).toFixed(2)}%]`
+                );
+              } else {
+                console.log(
+                  `[OUTPUT] file size: ${getFileSize(
+                    info.size,
+                    byteSize
+                  )} [+${getFileSize(fileSize - info.size, byteSize)}] [+${(
+                    ((fileSize - info.size) / fileSize) *
+                    100
+                  ).toFixed(2)}%]`
+                );
+              }
             }
+            console.log(
+              `[OUTPUT] file info: [${info.format}] ${info.width}x${info.height}`
+            );
           }
-          console.log(
-            `[OUTPUT] file info: [${info.format}] ${info.width}x${info.height}`
-          );
         } catch (err) {
           console.error("Error writing file:", err);
         }
       } catch (err) {
         console.error("Error processing file:", err);
       }
-    }
+    });
+
+    await Promise.allSettled(fileStatsPromises);
+
     if (performanceInfo) {
       end = performance.now();
       console.log(`Time elapsed: ${(end - start).toFixed(2)} ms`);
@@ -160,7 +171,7 @@ async function run({
 }
 
 const args = {
-  fileInfo: true,
+  logging: false,
   performanceInfo: true,
   byteSize: BYTE_SIZE.MB,
   quality: 75,
