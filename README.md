@@ -47,29 +47,30 @@ node index.js
 -TL:DR, the new version is 2x faster than the old version (same amount of compression and same quality)
 
 ### Highest effort (6)
-| Parameter     | Description              | Version 1                | Version 2                |
-|---------------|--------------------------|--------------------------|--------------------------|
-| Effort        | Scale: 0-6               | 6                        | 6                        |
-| Quality       | Scale: 0-100             | 75                       | 75                       |
-| Nr of Files   | Number of files          | 100                      | 100                      |
-| Avg Time (ms) | Average processing time  | 1366.71                  | 510.08                   |
+| Parameter     | Description              | Version 1                | Version 2                | Version 3                |
+|---------------|--------------------------|--------------------------|--------------------------|--------------------------|
+| Effort        | Scale: 0-6               | 6                        | 6                        | 6                        | 
+| Quality       | Scale: 0-100             | 75                       | 75                       | 75                       |
+| Nr of Files   | Number of files          | 100                      | 100                      | 100                      |
+| Avg Time (ms) | Average processing time  | 1366.71                  | 510.08                   | 157.71                   |
 
-
+128.07ms
+110.35
 ## Default effort (4)
-| Parameter     | Description              | Version 1                | Version 2                |
-|---------------|--------------------------|--------------------------|--------------------------|
-| Effort        | Scale: 0-6               | 4                        | 4                        |
-| Quality       | Scale: 0-100             | 75                       | 75                       |
-| Nr of Files   | Number of files          | 100                      | 100                      |
-| Avg Time (ms) | Average processing time  | 966.16                   | 402.87                   |
+| Parameter     | Description              | Version 1                | Version 2                | Version 3                |
+|---------------|--------------------------|--------------------------|--------------------------|--------------------------|
+| Effort        | Scale: 0-6               | 4                        | 4                        | 4                        |
+| Quality       | Scale: 0-100             | 75                       | 75                       | 75                       |
+| Nr of Files   | Number of files          | 100                      | 100                      | 100                      |
+| Avg Time (ms) | Average processing time  | 966.16                   | 402.87                   | 128.07                   |
 
 ## Lowest effort (0)
-| Parameter     | Description              | Version 1                | Version 2                |
-|---------------|--------------------------|--------------------------|--------------------------|
-| Effort        | Scale: 0-6               | 0                        | 0                        |
-| Quality       | Scale: 0-100             | 75                       | 75                       |
-| Nr of Files   | Number of files          | 100                      | 100                      |
-| Avg Time (ms) | Average processing time  | 714.79                   | 337.76                   |
+| Parameter     | Description              | Version 1                | Version 2                | Version 3                |
+|---------------|--------------------------|--------------------------|--------------------------|--------------------------|
+| Effort        | Scale: 0-6               | 0                        | 0                        | 0                        |
+| Quality       | Scale: 0-100             | 75                       | 75                       | 75                       |
+| Nr of Files   | Number of files          | 100                      | 100                      | 100                      |
+| Avg Time (ms) | Average processing time  | 714.79                   | 337.76                   | 110.35                   |
 
   
 ## Development

@@ -102,6 +102,7 @@ async function run({
         folderPathOutput,
         fileNameOutput + "-compressed" + fileFormatOutput
       );
+
       // Define the compression and resizing options
       // 0 - 6 (effort, higher is slower but better)
       const options = {
