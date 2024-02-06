@@ -123,27 +123,19 @@ async function run({
 
           if (logging) {
             if (fileSize) {
+              let sign = '+';
               if (fileSize - info.size > 0) {
-                console.log(
-                  `[OUTPUT] file size: ${getFileSize(
-                    info.size,
-                    byteSize
-                  )} [-${getFileSize(fileSize - info.size, byteSize)}] [-${(
-                    ((fileSize - info.size) / fileSize) *
-                    100
-                  ).toFixed(2)}%]`
-                );
-              } else {
-                console.log(
-                  `[OUTPUT] file size: ${getFileSize(
-                    info.size,
-                    byteSize
-                  )} [+${getFileSize(fileSize - info.size, byteSize)}] [+${(
-                    ((fileSize - info.size) / fileSize) *
-                    100
-                  ).toFixed(2)}%]`
-                );
+                sign = '-'
               }
+              console.log(
+                `[OUTPUT] file size: ${getFileSize(
+                  info.size,
+                  byteSize
+                )} [${sign}${getFileSize(fileSize - info.size, byteSize)}] [${sign}${(
+                  ((fileSize - info.size) / fileSize) *
+                  100
+                ).toFixed(2)}%]`
+              );
             }
             console.log(
               `[OUTPUT] file info: [${info.format}] ${info.width}x${info.height}`
@@ -172,9 +164,9 @@ async function run({
 }
 
 const args = {
-  logging: false,
+  logging: true,
   performanceInfo: true,
-  byteSize: BYTE_SIZE.MB,
+  byteSize: BYTE_SIZE.KB,
   quality: 75,
 };
 
